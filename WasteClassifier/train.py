@@ -11,9 +11,11 @@ import scipy
 import PIL
 from PIL import Image
 
+# image size to be parsed
 basewidth = 10
 hsize = 10
 
+# enums for the node outputs
 category_to_int = {
     "compost":(0,0),
     "paper":(0,1),
@@ -32,11 +34,7 @@ int_to_category = {
 def resize(img):
     return scipy.misc.imresize(img, (basewidth, hsize))
 
-def loadImage(path):
-    image = cv2.imread(path)
-    im = resize(image)
-    return flatten(im)
- 
+# flattens image to 1d feature vector list
 def flatten(x):
     result = []
     for el in x:
@@ -46,6 +44,13 @@ def flatten(x):
             result.append(el)
     return result
 
+# load image, resize, and flatten to feature vector
+def loadImage(path):
+    image = cv2.imread(path)
+    im = resize(image)
+    return flatten(im)
+
+# takes output of neural net and returns category
 def categorize(result):
     if result[0] > .5:
         first = 1
@@ -56,7 +61,10 @@ def categorize(result):
     else:
         second = 0
     return int_to_category[(first, second)]
- 
+
+# build neural network and train
+# would be nice to reduce dimension of feature vector to get rid of uneccessary data
+# before inputting into neural network (future work)
 if __name__ == "__main__":
     t = basewidth * hsize * 3
     net = buildNetwork(t, t * t / 20, t, 2, bias = True)
@@ -74,7 +82,8 @@ if __name__ == "__main__":
         iteration += 1
         print "Iteration: {0} Error {1}".format(iteration, error)
     
-
+    # currently tested on dumb data, use with data that has been separated into
+    # training and test data, and only test on non trained data
     print "\nResult: ", categorize(net.activate(loadImage('a.png')))
     print "\nResult: ", categorize(net.activate(loadImage('a_r.png')))
     print "\nResult: ", categorize(net.activate(loadImage('b.png')))

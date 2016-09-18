@@ -4,7 +4,8 @@ import re
 import urllib2
 import os
 
-
+# search for images online
+# can be used to gather image data
 def get_soup(url):
     return BeautifulSoup(requests.get(url).text, "html.parser")
 
